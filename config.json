@@ -1,5 +1,5 @@
 {
     "prefix":"!",
-    "token":"ODcxODYxOTM0NDU3MjUzODk4.YQhesw.ayOCjyWe-8yXLUbVPNdUqVbmZrA"
-
+    "token":"ODcxODYxOTM0NDU3MjUzODk4.YQhesw.ayOCjyWe-8yXLUbVPNdUqVbmZrA",
+    "mongodbconnection":"mongodb+srv://waldomironeto8:tatamomonene123@discordbot.atc79.mongodb.net/TropaCobreDatabase?retryWrites=true&w=majority"
 }

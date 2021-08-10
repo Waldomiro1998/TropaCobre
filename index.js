@@ -1,5 +1,11 @@
 const fs = require("fs");
 
+//DATABASE
+const mongoose = require('mongoose')
+
+//SCHEMAS
+const userModels = require('./models/userSchema.js')
+
 const puppeteer = require('puppeteer');
 //API discord
 const Discord = require('discord.js')
@@ -20,7 +26,13 @@ const DOZEHORAS=43200*1000
 
 client.on("ready", ()=>{
     console.log(`Ready, \n users: ${client.users.cache.size} \n channels: ${client.channels.cache.size}  \n servers: ${client.guilds.cache.size}`)   
-    
+    mongoose.connect(config.mongodbconnection,{
+        useNewUrlParser:true,
+        useUnifiedTopology: true,
+        useFindAndModify:false 
+    }).then(()=>{console.log("CONECTION STABLISH WITH DATABASE")}).catch((err) =>{
+        console.log(err)
+    })
 })
 
 client.on("guildCreate", guild =>{
@@ -89,7 +101,12 @@ client.on("message", async message =>{
     }
     else if( comando === "rank" && param1 != null)
     {     
-        let rank = await  WebRequest(param1)        
+        let rank = await  WebRequest(param1)
+        let user = await userModels.create({
+            userID: message.member.id,
+            playerID: param1
+        })
+        user.save()
         RANKS.forEach(rank => {   
             let rank_roles = message.member.roles.cache.find(role => role.name === rank.name);
             if (rank_roles){
@@ -113,38 +130,29 @@ setInterval(() => UpdateAllMembersRank(),4000);
 
 async function UpdateAllMembersRank()
 {
-    jsonReader('./registered.json',(err,data)=>{
-        if(err){
-            console.log(err)
-        }else{
+    client.guilds.cache.forEach(guild =>{
+    if (!guild)
+        return console.log(`Can't find any guild with the ID "${id}"`);
+    guild.members
+        .fetch()
+        .then((members) =>
+            members.forEach((member) => async function(){
+                if (member.id in data){
+                    let rank = await  WebRequest(data[member.id])                           
+                    RANKS.forEach(rank => {   
+                        let rank_roles = member.roles.cache.find(role => role.name === rank.name);
+                        if (rank_roles){
+                            async function start(target_role) {await member.roles.remove(target_role);}
+                            start(rank_roles)  
+                        } 
+                    })
             
-            client.guilds.cache.forEach(guild =>{
-                if (!guild)
-                    return console.log(`Can't find any guild with the ID "${id}"`);
-                guild.members
-                    .fetch()
-                    .then((members) =>
-                        members.forEach((member) => async function(){
-                            if (member.id in data){
-                                let rank = await  WebRequest(data[member.id])                           
-                                RANKS.forEach(rank => {   
-                                    let rank_roles = member.roles.cache.find(role => role.name === rank.name);
-                                    if (rank_roles){
-                                        async function start(target_role) {await member.roles.remove(target_role);}
-                                        start(rank_roles)  
-                                    } 
-                                })
-                        
-                                let role = member.guild.roles.cache.find(role => role.name === rank);
-                                if (role) guild.members.cache.get(message.author.id).roles.add(role);
-                            }
-                        }),
-                    );
-            });
-        
-        }
-    })
-         
+                    let role = member.guild.roles.cache.find(role => role.name === rank);
+                    if (role) guild.members.cache.get(message.author.id).roles.add(role);
+                }
+            }),
+        );
+    });     
 }
 
 
@@ -162,20 +170,4 @@ async function WebRequest(player_id){
     }) 
     await browser.close()
     return  RANK_DICTIONARY[rank.current_rank]
-}
-
-
-function jsonReader(filePath,cb){
-    fs.readFile(filePath,'utf-8',(err,fileData) =>{
-    if(err){
-        return cb && cb(err)
-    }
-    try{
-        const object = JSON.parse(fileData)
-        return cb && cb(null,object)
-    }catch(err){
-       return cb && cb(err)
-    }
-
-    })
 }
