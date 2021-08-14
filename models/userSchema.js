@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-    userID:{type: Number,require:true ,unique:true},
+    userID:{type: String,require:true ,unique:true},
     playerID: {type: String,require:true ,unique:true},
 })
 
