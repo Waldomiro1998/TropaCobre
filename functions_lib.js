@@ -8,16 +8,16 @@ const userModels = require('./models/userSchema.js')
 
 
 async function WebRequest(player_id){
-    const RANK_DICTIONARY = {Copper:"Cobre",Bronze:"Bronze", Silver:"Prata",Gold:"Ouro", Platinum: "Platina",Diamond:"Diamonte",Champion:"Champion"};
+    const RANK_DICTIONARY = {COPPER:"Cobre",BRONZE:"Bronze", SILVER:"Prata",GOLD:"Ouro", PLATINUM: "Platina",DIAMOND:"Diamonte",CHAMPION:"Champion"};
     const browser = await puppeteer.launch();
     
     let page = await browser.newPage();
     
-    await page.goto(`https://tabstats.com/siege/player/${player_id}`)
+    await page.goto(`https://r6.tracker.network/profile/id/${player_id}`)
     
     try{
         let rank = await page.evaluate(() =>{
-            return document.querySelector(".ranktitle").innerHTML.split(" ")[0]
+            return document.querySelector('.r6-season-rank img').title.split(" ")[0]
         })
         await browser.close()
         return RANK_DICTIONARY[rank]

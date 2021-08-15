@@ -1,6 +1,7 @@
 module.exports = {
     name: 'clearoles',
     description : 'deleta todas as roles criadas pelo bot',
+    command_help: '!clearroles' ,
     async execute(client,message,args,Discord){
         RANKS.forEach(rank => {   
             let role = message.guild.roles.cache.find(x => x.name === rank.name); 

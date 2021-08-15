@@ -3,6 +3,7 @@ const webScrap = require('../functions_lib.js')
 module.exports = {
     name: 'rank',
     description : 'seta o id do jogador com o id do discord',
+    command_help: '!rank <id do jogador>',
     async execute(client,message,args,Discord){
         if(!args[0]) return message.reply("Por favor passe um segundo parametro id do jogador no rainbowsixtab");
         
